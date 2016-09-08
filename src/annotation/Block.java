@@ -1,28 +1,13 @@
 package annotation;
 
-public class Block implements Annotation {
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-    private final String ref;
-    private final Strand strand;
-    private final int start;
-    private final int end;
+public class Block extends AnnotationImpl implements Annotation {
 
     public Block(String ref, int start, int end, Strand strand) {
-
-        if (start >= end) {
-            throw new IllegalArgumentException("INSTANTIATION FAIL: Block " +
-                "end " + end + " must be greater than block start " + start);
-        }
-        
-        this.ref = ref;
-        this.start = start;
-        this.end = end;
-        this.strand = strand;
-    }
-    
-    @Override
-    public Strand getStrand() {
-        return strand;
+        super(ref, start, end, strand);
     }
 
     @Override
@@ -31,30 +16,14 @@ public class Block implements Annotation {
     }
 
     @Override
-    public String getReferenceName() {
-        return ref;
+    public int getNumberOfBlocks() {
+        return 1;
     }
 
     @Override
-    public int getStart() {
-        return start;
-    }
-
-    @Override
-    public int getEnd() {
-        return end;
-    }
-
-    public boolean overlaps(Block a) {
-
-        if (a == null) {
-            return false;
-        }
-        
-        if (!ref.equals(a.ref)) {
-            return false;
-        }
-        
-        return this.start < a.end && a.start < this.end;
+    public Iterator<Block> getBlocks() {
+        List<Block> l = new ArrayList<>();
+        l.add(this);
+        return l.iterator();
     }
 }

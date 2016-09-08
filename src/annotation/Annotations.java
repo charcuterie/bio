@@ -45,6 +45,14 @@ public class Annotations {
         return new BlockedAnnotation(ref, start, end, strand, bs);
     }
     
+    public static Gene getGene(String name, List<Block> bs) {
+        
+    }
+    
+    public static Gene getGene(String name, List<Block> bs, int cdsStart, int cdsEnd) {
+        
+    }
+    
     private Annotations() { }
     
     private static class EmptyAnnotation implements Annotation {
@@ -72,6 +80,41 @@ public class Annotations {
         @Override
         public int getEnd() {
             return 0;
+        }
+
+        @Override
+        public int getNumberOfBlocks() {
+            return 0;
+        }
+
+        @Override
+        public Iterator<Block> getBlocks() {
+            return Collections.emptyIterator();
+        }
+
+        @Override
+        public Annotation minus(Annotation other) {
+            return this;
+        }
+
+        @Override
+        public Annotation union(Annotation other) {
+            return other;
+        }
+
+        @Override
+        public Annotation intersection(Annotation other) {
+            return this;
+        }
+
+        @Override
+        public Annotation xor(Annotation other) {
+            return other;
+        }
+
+        @Override
+        public boolean overlaps(Annotation other) {
+            return false;
         }
     }
 }
