@@ -7,7 +7,7 @@ public class Sequence implements Stranded {
 
     protected final String sequence;
     protected final String name;
-    protected static final String nl = "\n";
+    protected static final String nl = System.getProperty("line.separator");
     
     public Sequence(String name, String seq) {
         if (name == null) {
