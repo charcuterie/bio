@@ -11,7 +11,7 @@ public class BlockedAnnotation extends AnnotationImpl implements Annotation {
 
     protected final List<Block> blocks;
     
-    public BlockedAnnotation(BlockedBuilder b) {
+    protected BlockedAnnotation(BlockedBuilder b) {
         super(b);
         this.blocks = Collections.unmodifiableList(b.blocks);
     }
@@ -35,9 +35,12 @@ public class BlockedAnnotation extends AnnotationImpl implements Annotation {
     }
 
     @Override
-    public Stranded reverseComplement() {
-        // TODO Auto-generated method stub
-        return null;
+    public Annotation reverseComplement() {
+        BlockedBuilder bb = new BlockedBuilder();
+        for (Block b : blocks) {
+            bb.addBlock(b.reverseComplement());
+        }
+        return bb.build();
     }
 
     @Override
@@ -114,7 +117,7 @@ public class BlockedAnnotation extends AnnotationImpl implements Annotation {
             Block prevBlock = null;
             Iterator<Block> iter = blocks.iterator();
             String ref = "";
-            Strand strand = Strand.UNKNOWN;
+            Strand strand = Strand.BOTH;
             int start = 0;
             int end = 0;
 

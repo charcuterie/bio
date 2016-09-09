@@ -11,7 +11,7 @@ public class Block extends AnnotationImpl implements Annotation {
     }
 
     @Override
-    public Stranded reverseComplement() {
+    public Block reverseComplement() {
         return new Block(ref, start, end, strand.reverse());
     }
 

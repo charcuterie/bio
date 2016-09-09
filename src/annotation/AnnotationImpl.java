@@ -133,11 +133,16 @@ public abstract class AnnotationImpl implements Annotation {
             return Optional.of(this);
         }
         
+        if ((strand.equals(Strand.NEGATIVE) || (strand.equals(Strand.POSITIVE)))
+                && strand.reverse().equals(other.getStrand())) {
+            return Optional.of(this);
+        }
+        
         int[] flattened = merge(other, (a, b) -> a && !b);
         List<Block> blocks = new ArrayList<>();
 
         for (int i = 0; i < flattened.length; i += 2) {
-            blocks.add(new Block(getReferenceName(), flattened[i], flattened[i + 1], getStrand()));
+            blocks.add(new Block(getReferenceName(), flattened[i], flattened[i + 1], strand));
         }
         
         return blocks.isEmpty() ? Optional.empty()
@@ -150,11 +155,13 @@ public abstract class AnnotationImpl implements Annotation {
             return this;
         }
         
+        Strand returnStrand = strand.equals(other.getStrand()) ? strand : Strand.BOTH;
+        
         int[] flattened = merge(other, (a, b) -> a || b);
         List<Block> blocks = new ArrayList<>();
 
         for (int i = 0; i < flattened.length; i += 2) {
-            blocks.add(new Block(getReferenceName(), flattened[i], flattened[i + 1], getStrand()));
+            blocks.add(new Block(getReferenceName(), flattened[i], flattened[i + 1], returnStrand));
         }
         
         return (new BlockedAnnotation.BlockedBuilder()).addBlocks(blocks).build();
@@ -166,11 +173,22 @@ public abstract class AnnotationImpl implements Annotation {
             return Optional.empty();
         }
         
+        Strand returnStrand = null;
+        if (strand.equals(other.getStrand())) {
+            returnStrand = strand;
+        } else if (strand.equals(Strand.BOTH)) {
+            returnStrand = other.getStrand();
+        } else if (other.getStrand().equals(Strand.BOTH)) {
+            returnStrand = strand;
+        } else {
+            return Optional.empty();
+        }
+        
         int[] flattened = merge(other, (a, b) -> a && b);
         List<Block> blocks = new ArrayList<>();
 
         for (int i = 0; i < flattened.length; i += 2) {
-            blocks.add(new Block(getReferenceName(), flattened[i], flattened[i + 1], getStrand()));
+            blocks.add(new Block(getReferenceName(), flattened[i], flattened[i + 1], returnStrand));
         }
         
         return blocks.isEmpty() ? Optional.empty()
@@ -183,11 +201,13 @@ public abstract class AnnotationImpl implements Annotation {
             return Optional.of(this);
         }
         
+        Strand returnStrand = strand.equals(other.getStrand()) ? strand : Strand.BOTH;
+        
         int[] flattened = merge(other, (a, b) -> a ^ b);
         List<Block> blocks = new ArrayList<>();
 
         for (int i = 0; i < flattened.length; i += 2) {
-            blocks.add(new Block(getReferenceName(), flattened[i], flattened[i + 1], getStrand()));
+            blocks.add(new Block(getReferenceName(), flattened[i], flattened[i + 1], returnStrand));
         }
         
         return blocks.isEmpty() ? Optional.empty()

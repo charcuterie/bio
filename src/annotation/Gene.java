@@ -1,5 +1,6 @@
 package annotation;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -13,7 +14,7 @@ public class Gene extends BlockedAnnotation {
     protected final int cdsStartPos;
     protected final int cdsEndPos;
 
-    public Gene(GeneBuilder b) {
+    protected Gene(GeneBuilder b) {
         super(b);
         this.name = b.name;
         this.cdsStartPos = b.cdsStart;
@@ -113,7 +114,15 @@ public class Gene extends BlockedAnnotation {
             return this;
         }
         
+        @Override
+        public GeneBuilder addBlock(Block b) {
+            return (GeneBuilder) super.addBlock(b);
+        }
         
+        @Override
+        public GeneBuilder addBlocks(Collection<Block> bs) {
+            return (GeneBuilder) super.addBlocks(bs);
+        }
         
         @Override
         public Gene build() {
@@ -129,7 +138,7 @@ public class Gene extends BlockedAnnotation {
             Block prevBlock = null;
             Iterator<Block> iter = blocks.iterator();
             String ref = "";
-            Strand strand = Strand.UNKNOWN;
+            Strand strand = Strand.BOTH;
             int start = 0;
             int end = 0;
 

@@ -1,9 +1,8 @@
 package sequence;
 
 import annotation.Strand;
-import annotation.Stranded;
 
-public class Sequence implements Stranded {
+public class Sequence {
 
     protected final String sequence;
     protected final String name;
@@ -35,12 +34,10 @@ public class Sequence implements Stranded {
         return new Sequence(name, sequence);
     }
     
-    @Override
     public Strand getStrand() {
-        return Strand.UNKNOWN;
+        return Strand.BOTH;
     }
     
-    @Override
     public Sequence reverseComplement() {
         return reverseComplement(name);
     }

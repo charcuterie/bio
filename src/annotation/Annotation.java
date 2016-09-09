@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 
 import datastructures.Interval;
 
-public interface Annotation extends Interval, Stranded {
+public interface Annotation extends Interval {
 
     public String getReferenceName();
     
@@ -19,6 +19,10 @@ public interface Annotation extends Interval, Stranded {
     public int getSize();
     
     public int getSpan();
+    
+    public Strand getStrand();
+    
+    public Annotation reverseComplement();
     
     public Iterator<Block> getBlocks();
     
