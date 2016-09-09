@@ -9,7 +9,7 @@ import java.util.List;
 
 public class BlockedAnnotation extends AnnotationImpl implements Annotation {
 
-    private final List<Block> blocks;
+    protected final List<Block> blocks;
     
     public BlockedAnnotation(BlockedBuilder b) {
         super(b);
@@ -48,6 +48,38 @@ public class BlockedAnnotation extends AnnotationImpl implements Annotation {
     @Override
     public Iterator<Block> getBlocks() {
         return blocks.iterator();
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        
+        if (!(o instanceof BlockedAnnotation)) {
+            return false;
+        }
+        
+        BlockedAnnotation other = (BlockedAnnotation) o;
+        
+        return ref.equals(other.ref) &&
+               start == other.start &&
+               end == other.end &&
+               strand.equals(other.strand) &&
+               blocks.equals(other.blocks);
+    }
+    
+    @Override
+    public int hashCode() {
+        int hashCode = 17;
+        hashCode = 37 * hashCode + ref.hashCode();
+        hashCode = 37 * hashCode + strand.hashCode();
+        hashCode = 37 * hashCode + start;
+        hashCode = 37 * hashCode + end;
+        for (Block b : blocks) {
+            hashCode = 37 * hashCode + b.hashCode();
+        }
+        return hashCode;
     }
     
     public static class BlockedBuilder extends AnnotationBuilder {

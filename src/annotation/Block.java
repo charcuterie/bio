@@ -26,4 +26,32 @@ public class Block extends AnnotationImpl implements Annotation {
         l.add(this);
         return l.iterator();
     }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        
+        if (!(o instanceof Block)) {
+            return false;
+        }
+        
+        Block other = (Block) o;
+        
+        return ref.equals(other.ref) &&
+               start == other.start &&
+               end == other.end &&
+               strand.equals(other.strand);
+    }
+    
+    @Override
+    public int hashCode() {
+        int hashCode = 17;
+        hashCode = 37 * hashCode + ref.hashCode();
+        hashCode = 37 * hashCode + strand.hashCode();
+        hashCode = 37 * hashCode + start;
+        hashCode = 37 * hashCode + end;
+        return hashCode;
+    }
 }

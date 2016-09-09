@@ -4,7 +4,9 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public interface Annotation extends Stranded {
+import datastructures.Interval;
+
+public interface Annotation extends Interval, Stranded {
 
     public String getReferenceName();
     

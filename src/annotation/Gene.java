@@ -51,6 +51,45 @@ public class Gene extends BlockedAnnotation {
         return intersection(cds);
     }
     
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        
+        if (!(o instanceof Gene)) {
+            return false;
+        }
+        
+        Gene other = (Gene) o;
+        
+        return ref.equals(other.ref) &&
+               name.equals(other.name) &&
+               start == other.start &&
+               end == other.end &&
+               strand.equals(other.strand) &&
+               cdsStartPos == other.cdsStartPos &&
+               cdsEndPos == other.cdsEndPos &&
+               blocks.equals(other.blocks);
+    }
+    
+    @Override
+    public int hashCode() {
+        int hashCode = 17;
+        hashCode = 37 * hashCode + ref.hashCode();
+        hashCode = 37 * hashCode + strand.hashCode();
+        hashCode = 37 * hashCode + start;
+        hashCode = 37 * hashCode + end;
+        hashCode = 37 * hashCode + name.hashCode();
+        hashCode = 37 * hashCode + cdsStartPos;
+        hashCode = 37 * hashCode + cdsEndPos;
+        for (Block b : blocks) {
+            hashCode = 37 * hashCode + b.hashCode();
+        }
+
+        return hashCode;
+    }
+    
     public static class GeneBuilder extends BlockedBuilder {
         
         protected String name = "";
