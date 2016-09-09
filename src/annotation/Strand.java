@@ -2,22 +2,28 @@ package annotation;
 
 public enum Strand {
 
-    POSITIVE('+') {
+    POSITIVE('+', '+') {
         Strand reverse() { return NEGATIVE; }
     },
 
-    NEGATIVE('-') {
+    NEGATIVE('-', '-') {
         Strand reverse() { return POSITIVE; }
     },
 
-    UNKNOWN('?') {
+    UNKNOWN('?', '.') {
         Strand reverse() { return UNKNOWN; }
     };
     
     private char value;
+    private char bedValue;
     
-    private Strand(char value) {
+    private Strand(char value, char bedValue) {
         this.value = value;
+        this.bedValue = bedValue;
+    }
+    
+    public String toBEDString() {
+        return "" + bedValue;
     }
     
     @Override

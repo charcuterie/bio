@@ -3,7 +3,12 @@ package annotation;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.BiFunction;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public abstract class AnnotationImpl implements Annotation {
     
@@ -11,7 +16,14 @@ public abstract class AnnotationImpl implements Annotation {
     protected final Strand strand;
     protected final int start;
     protected final int end;
-
+    
+    public AnnotationImpl(AnnotationBuilder b) {
+        this.ref = b.ref;
+        this.strand = b.strand;
+        this.start = b.start;
+        this.end = b.end;
+    }
+    
     public AnnotationImpl(String ref, int start, int end, Strand strand) {
 
         if (start >= end) {
@@ -41,8 +53,25 @@ public abstract class AnnotationImpl implements Annotation {
         return end;
     }
     
+    @Override
+    public int getSize() {
+        return end - start;
+    }
+    
+    @Override
+    public int getSpan() {
+        return getSize();
+    }
+    
+    @Override
     public boolean overlaps(Annotation a) {
-        return intersection(a) != Annotations.EMPTY;
+        return intersection(a).isPresent();
+    }
+    
+    @Override
+    public Stream<Block> getBlockStream() {
+        final Spliterator<Block> s = Spliterators.spliteratorUnknownSize(getBlocks(), Spliterator.ORDERED);
+        return StreamSupport.stream(s, false);
     }
     
     protected int[] merge(Annotation other, BiFunction<Boolean, Boolean, Boolean> op) {
@@ -98,10 +127,10 @@ public abstract class AnnotationImpl implements Annotation {
     }
     
     @Override
-    public Annotation minus(Annotation other) {
+    public Optional<Annotation> minus(Annotation other) {
 
-        if (other == Annotations.EMPTY) {
-            return this;
+        if (other == null) {
+            return Optional.of(this);
         }
         
         int[] flattened = merge(other, (a, b) -> a && !b);
@@ -111,12 +140,13 @@ public abstract class AnnotationImpl implements Annotation {
             blocks.add(new Block(getReferenceName(), flattened[i], flattened[i + 1], getStrand()));
         }
         
-        return blocks.isEmpty() ? Annotations.EMPTY : Annotations.getBlockedAnnotation(blocks);
+        return blocks.isEmpty() ? Optional.empty()
+                                : Optional.of((new BlockedAnnotation.BlockedBuilder()).addBlocks(blocks).build());
     }
     
     @Override
     public Annotation union(Annotation other) {
-        if (other == Annotations.EMPTY) {
+        if (other == null) {
             return this;
         }
         
@@ -127,13 +157,13 @@ public abstract class AnnotationImpl implements Annotation {
             blocks.add(new Block(getReferenceName(), flattened[i], flattened[i + 1], getStrand()));
         }
         
-        return blocks.isEmpty() ? Annotations.EMPTY : Annotations.getBlockedAnnotation(blocks);
+        return (new BlockedAnnotation.BlockedBuilder()).addBlocks(blocks).build();
     }
     
     @Override
-    public Annotation intersection(Annotation other) {
-        if (other == Annotations.EMPTY) {
-            return Annotations.EMPTY;
+    public Optional<Annotation> intersection(Annotation other) {
+        if (other == null) {
+            return Optional.empty();
         }
         
         int[] flattened = merge(other, (a, b) -> a && b);
@@ -143,13 +173,14 @@ public abstract class AnnotationImpl implements Annotation {
             blocks.add(new Block(getReferenceName(), flattened[i], flattened[i + 1], getStrand()));
         }
         
-        return blocks.isEmpty() ? Annotations.EMPTY : Annotations.getBlockedAnnotation(blocks);
+        return blocks.isEmpty() ? Optional.empty()
+                                : Optional.of((new BlockedAnnotation.BlockedBuilder()).addBlocks(blocks).build());
     }
     
     @Override
-    public Annotation xor(Annotation other) {
-        if (other == Annotations.EMPTY) {
-            return this;
+    public Optional<Annotation> xor(Annotation other) {
+        if (other == null) {
+            return Optional.of(this);
         }
         
         int[] flattened = merge(other, (a, b) -> a ^ b);
@@ -159,6 +190,19 @@ public abstract class AnnotationImpl implements Annotation {
             blocks.add(new Block(getReferenceName(), flattened[i], flattened[i + 1], getStrand()));
         }
         
-        return blocks.isEmpty() ? Annotations.EMPTY : Annotations.getBlockedAnnotation(blocks);
+        return blocks.isEmpty() ? Optional.empty()
+                : Optional.of((new BlockedAnnotation.BlockedBuilder()).addBlocks(blocks).build());
+    }
+    
+    public abstract static class AnnotationBuilder {
+        
+        protected int start;
+        protected int end;
+        protected String ref;
+        protected Strand strand;
+        
+        public AnnotationBuilder() { }
+        
+        public abstract Annotation build();
     }
 }
