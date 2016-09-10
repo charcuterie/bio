@@ -179,6 +179,49 @@ public final class BEDFileRecord extends Gene implements AnnotationFileRecord {
         return rtrn;
     }
     
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        
+        if (!(o instanceof BEDFileRecord)) {
+            return false;
+        }
+        
+        BEDFileRecord other = (BEDFileRecord) o;
+        
+        return ref.equals(other.ref) &&
+               name.equals(other.name) &&
+               start == other.start &&
+               end == other.end &&
+               strand.equals(other.strand) &&
+               cdsStartPos == other.cdsStartPos &&
+               cdsEndPos == other.cdsEndPos &&
+               blocks.equals(other.blocks) &&
+               score == other.score &&
+               color.equals(other.color);
+    }
+    
+    @Override
+    public int hashCode() {
+        int hashCode = 17;
+        hashCode = 37 * hashCode + ref.hashCode();
+        hashCode = 37 * hashCode + strand.hashCode();
+        hashCode = 37 * hashCode + start;
+        hashCode = 37 * hashCode + end;
+        hashCode = 37 * hashCode + name.hashCode();
+        hashCode = 37 * hashCode + cdsStartPos;
+        hashCode = 37 * hashCode + cdsEndPos;
+        hashCode = 37 * hashCode + Double.hashCode(score);
+        hashCode = 37 * hashCode + color.hashCode();
+        for (Block b : blocks) {
+            hashCode = 37 * hashCode + b.hashCode();
+        }
+
+        return hashCode;
+    }
+    
     public static class BEDBuilder extends GeneBuilder {
         
         private double score;
