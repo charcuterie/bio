@@ -223,6 +223,10 @@ public abstract class AnnotationImpl implements Annotation {
         
         public AnnotationBuilder() { }
         
+        /**
+         * Builds and returns the <code>Annotation</code> represented by this
+         * builder.
+         */
         public abstract Annotation build();
     }
 }

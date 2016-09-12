@@ -7,6 +7,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * This class represents an <code>Annotation</code> with a name and an optional
+ * coding region.
+ * <p>
+ * Most constructors for this class are not exposed. To construct a
+ * <code>Gene</code>, use a {@link GeneBuilder}:
+ * <pre>
+ * <code>
+ * Gene g = (new GeneBuilder())
+ *     .addBlock(new Block("chr2", 1300, 1350, Strand.POSITIVE))
+ *     .addBlock(new Block("chr2", 1400, 1450, Strand.POSITIVE))
+ *     .addName("myGene")
+ *     .addCodingRegion(1325, 1425)
+ *     .build();
+ * </code>
+ * </pre>
+ */
 public class Gene extends BlockedAnnotation {
 
     protected final String name;
@@ -35,14 +52,29 @@ public class Gene extends BlockedAnnotation {
         this.cdsEndPos = cdsEndPos;
     }
     
+    /**
+     * Gets the name of this.
+     * <p>
+     * If this object doesn't have a name, this method returns the empty <code>String</code>
+     */
     public String getName() {
         return name;
     }
-    
+
+    /**
+     * Whether or not this has a coding region.
+     */
     public boolean hasNoCodingRegion() {
         return cdsStartPos == cdsEndPos; 
     }
     
+    /**
+     * Gets the coding region of this object.
+     * <p>
+     * @return the coding region of this object, if it exists, as an
+     * <code>Annotation</code> wrapped in an <code>Optional</code>; otherwise,
+     * an empty <code>Optional</code>
+     */
     public Optional<Annotation> getCodingRegion() {
         if (cdsStartPos == cdsEndPos) {
             return Optional.empty();
@@ -91,6 +123,19 @@ public class Gene extends BlockedAnnotation {
         return hashCode;
     }
     
+    /**
+     * A builder class for constructing {@link Gene}s.
+     * <p>
+     * An object of this class can be loaded with <code>Block</code>s, and will
+     * construct the corresponding <code>Gene</code> when its
+     * <code>build()</code> method is invoked. Any disagreement among the
+     * <code>Block</code>s (for example, conflicting reference names) will
+     * result in an exception being thrown.
+     * <p>
+     * Building a <code>Gene</code> with no name will cause the name to default
+     * to the empty <code>String</code>. A <code>Gene</code>'s coding region is
+     * also optional.
+     */
     public static class GeneBuilder extends BlockedBuilder {
         
         protected String name = "";
@@ -98,15 +143,37 @@ public class Gene extends BlockedAnnotation {
         protected int cdsEnd;
         protected boolean newCds = false;
         
+        /**
+         * Constructs a new builder containing no <code>Block</code>s.
+         */
         public GeneBuilder() {
             super();
         }
 
+        /**
+         * Adds a name to this builder.
+         * <p>
+         * Calling this method a second time will simply overwrite the name
+         * that was passed the first time.
+         * @param name - the name to add
+         * @return this builder for method-chaining
+         */
         public GeneBuilder addName(String name) {
             this.name = name;
             return this;
         }
         
+        /**
+         * Adds a coding region to this builder.
+         * <p>
+         * The values passed to this method are not checked for consistency
+         * until the <code>build()</code> method is invoked. Calling this
+         * method a second time will simply overwrite the values that were
+         * passed the first time.
+         * @param cdsStart - the start coordinate of the coding region
+         * @param cdsEnd - the end coordinate of the coding region
+         * @return this builder for method-chaining
+         */
         public GeneBuilder addCodingRegion(int cdsStart, int cdsEnd) {
             this.cdsStart = cdsStart;
             this.cdsEnd = cdsEnd;
@@ -123,7 +190,28 @@ public class Gene extends BlockedAnnotation {
         public GeneBuilder addBlocks(Collection<Block> bs) {
             return (GeneBuilder) super.addBlocks(bs);
         }
+
+        // TODO a lot of code duplication. Can we separate out the validation code?
         
+        /**
+         * Builds and returns the <code>Gene</code> represented by this
+         * builder.
+         * <p>
+         * Information about the returned <code>Gene</code> not explicitly set,
+         * such as reference name and <code>Strand</code>, is derived from the
+         * <code>Block</code>s within this builder. If no name is set, the
+         * returned <code>Gene</code>'s name is the empty <code>String</code>.
+         * If no coding region is set, the returned <code>Gene</code> will not
+         * have a coding region.
+         * @throws IllegalArgumentException if this builder contains no
+         * <code>Block</code>s
+         * @throws IllegalArgumentException if all of this builder's
+         * <code>Block</code>s do not have the same strandedness
+         * @throws IllegalArgumentException if all of this builder's
+         * <code>Block</code>s do not have the same reference name
+         * @throws IllegalArgumentException if any two of this builder's
+         * <code>Block</code>s overlap or touch end-to-end
+         */
         @Override
         public Gene build() {
             
@@ -149,11 +237,14 @@ public class Gene extends BlockedAnnotation {
                     strand = currBlock.getStrand();
                     start = currBlock.getStart();
                 } else if (prevBlock.getEnd() >= currBlock.getStart()) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException("Attempted to build an " +
+                            "Annotation with overlapping blocks.");
                 } else if (!currBlock.getStrand().equals(strand)) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException("Attempted to build an " +
+                            "Annotation with blocks of different strandednesses.");
                 } else if (!currBlock.getReferenceName().equals(ref)) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException("Attempted to build an " +
+                            "Annotation with blocks from different references.");
                 }
                 end = currBlock.getEnd();
                 prevBlock = currBlock;

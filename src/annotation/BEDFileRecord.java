@@ -7,6 +7,25 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.stream.IntStream;
 
+/**
+ * This class represents a record contained in one line of a BED file.
+ * <p>
+ * Constructors for this class are not exposed. To construct a
+ * <code>BEDFileRecord</code>, use a {@link BEDBuilder}:
+ * <pre>
+ * <code>
+ * BEDFileRecord b = (new BEDBuilder())
+ *     .addBlock(new Block("chr2", 1300, 1350, Strand.POSITIVE))
+ *     .addBlock(new Block("chr2", 1400, 1450, Strand.POSITIVE))
+ *     .addName("myBedName")
+ *     .addCodingRegion(1325, 1425)  // This is drawn as a thick line
+ *     .addColor(Color.LILAC)
+ *     .addScore(0.54321)
+ *     .build();
+ * </code>
+ * </pre>
+ * Unspecified fields will have sensible defaults.
+ */
 public final class BEDFileRecord extends Gene implements AnnotationFileRecord {
 
     private final double score;
@@ -23,14 +42,29 @@ public final class BEDFileRecord extends Gene implements AnnotationFileRecord {
         this.color = b.color;
     }
     
+    /**
+     * Gets the score of this.
+     */
     public double getScore() {
         return score;
     }
     
+    /**
+     * Gets the color of this.
+     */
     public Color getColor() {
         return color;
     }
 
+    /**
+     * Converts this to a properly formatted <code>String</code> suitable for
+     * outputting directly to a file.
+     * <p>
+     * Most fields in a BED file are optional. Use the <code>numFields</code>
+     * parameter to specify the number of fields contained in the returned
+     * <code>String</code>.
+     * @param numFields - the number of fields to output
+     */
     public String toFormattedString(int numFields) {
         if (IntStream.of(VALID_NUM_FIELDS).noneMatch(x -> x == numFields)) {
             throw new IllegalArgumentException("Attempted to convert BED " + 
@@ -80,12 +114,17 @@ public final class BEDFileRecord extends Gene implements AnnotationFileRecord {
         return sb.toString();
         
     }
-    
+
     @Override
     public String toFormattedString() {
         return toFormattedString(MAX_FIELDS);
     }
-    
+
+    /**
+     * Parses a BED-formatted <code>String</code> and returns the corresponding
+     * annotation as a <code>BEDFileRecord</code>
+     * @param s - the <code>String</code> to parse
+     */
     public static BEDFileRecord fromFormattedString(String s) {
         BEDBuilder bb = new BEDBuilder();
         String[] fields = s.trim().split("\\s+");

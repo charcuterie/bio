@@ -7,6 +7,21 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * This class represents an <code>Annotation</code> which is made up of
+ * <code>Block</code>s.
+ * <p>
+ * Most constructors for this class are not exposed. To construct a
+ * <code>BlockedAnnotation</code>, use a {@link BlockedBuilder}:
+ * <pre>
+ * <code>
+ * BlockedAnnotation b = (new BlockedBuilder())
+ *     .addBlock(new Block("chr2", 1300, 1350, Strand.POSITIVE))
+ *     .addBlock(new Block("chr2", 1400, 1450, Strand.POSITIVE))
+ *     .build();
+ * </code>
+ * </pre>
+ */
 public class BlockedAnnotation extends AnnotationImpl implements Annotation {
 
     protected final List<Block> blocks;
@@ -85,30 +100,69 @@ public class BlockedAnnotation extends AnnotationImpl implements Annotation {
         return hashCode;
     }
     
+    /**
+     * A builder class for constructing {@link BlockedAnnotation}s.
+     * <p>
+     * An object of this class can be loaded with <code>Block</code>s, and will
+     * construct the corresponding <code>BlockedAnnotation</code> when its
+     * <code>build()</code> method is invoked. Any disagreement among the
+     * <code>Block</code>s (for example, conflicting reference names) will
+     * result in an exception being thrown.
+     */
     public static class BlockedBuilder extends AnnotationBuilder {
 
         protected List<Block> blocks = new ArrayList<>();
-        
+
+        /**
+         * Constructs a new builder containing no <code>Block</code>s.
+         */
         public BlockedBuilder() {
             super();
         }
 
+        /**
+         * Adds all the <code>Block</code>s in the given
+         * <code>Collection</code> to this builder.
+         * @param bs - the <code>Collection</code> of <code>Block</code>s to
+         * add
+         * @return this builder for method chaining
+         */
         public BlockedBuilder addBlocks(Collection<Block> bs) {
             bs.iterator().forEachRemaining(blocks::add);
             return this;
         }
         
+        /**
+         * Adds a <code>Block</code> to this builder.
+         * @param b - the <code>Block</code> to add
+         * @return this builder for method-chaining
+         */
         public BlockedBuilder addBlock(Block b) {
             blocks.add(b);
             return this;
         }
         
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Information about the returned <code>Annotation</code> (reference
+         * name, <code>Strand</code>, etc.) is derived from the
+         * <code>Block</code>s within this builder. 
+         * @throws IllegalArgumentException if this builder contains no
+         * <code>Block</code>s
+         * @throws IllegalArgumentException if all of this builder's
+         * <code>Block</code>s do not have the same strandedness
+         * @throws IllegalArgumentException if all of this builder's
+         * <code>Block</code>s do not have the same reference name
+         * @throws IllegalArgumentException if any two of this builder's
+         * <code>Block</code>s overlap or touch end-to-end
+         */
         @Override
         public Annotation build() {
             
             if (blocks.isEmpty()) {
-                throw new IllegalArgumentException("Attempted to build a " +
-                        "BlockedAnnotation with no blocks.");
+                throw new IllegalArgumentException("Attempted to build an " +
+                        "Annotation with no blocks.");
             }
             
             Collections.sort(blocks, Comparator.comparing(Block::getStart)
@@ -128,11 +182,14 @@ public class BlockedAnnotation extends AnnotationImpl implements Annotation {
                     strand = currBlock.getStrand();
                     start = currBlock.getStart();
                 } else if (prevBlock.getEnd() >= currBlock.getStart()) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException("Attempted to build an " +
+                            "Annotation with overlapping blocks.");
                 } else if (!currBlock.getStrand().equals(strand)) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException("Attempted to build an " +
+                            "Annotation with blocks of different strandednesses.");
                 } else if (!currBlock.getReferenceName().equals(ref)) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException("Attempted to build an " +
+                            "Annotation with blocks from different references.");
                 }
                 end = currBlock.getEnd();
                 prevBlock = currBlock;
