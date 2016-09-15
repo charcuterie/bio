@@ -211,6 +211,12 @@ public class Gene extends BlockedAnnotation {
          * <code>Block</code>s do not have the same reference name
          * @throws IllegalArgumentException if any two of this builder's
          * <code>Block</code>s overlap or touch end-to-end
+         * @throws IllegalArgumentException if the end of the coding region
+         * occurs before the start
+         * @throws IllegalArgumentException if the coding region starts before
+         * the start of the first <code>Block</code>
+         * @throws IllegalArgumentException if the coding region ends after the
+         * end of the last <code>Block</code>
          */
         @Override
         public Gene build() {
@@ -257,13 +263,25 @@ public class Gene extends BlockedAnnotation {
             
             if (newCds) {
                 if (cdsStart >= cdsEnd) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException("Attempted to build an " +
+                            "Annotation with an invalid coding region. " +
+                            "cdsStart must be greater than or equal to " +
+                            "cdsEnd. cdsStart: " + cdsStart + ", cdsEnd: " +
+                            cdsEnd);
                 }
                 if (cdsStart < start) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException("Attempted to build an " +
+                            "Annotation with an invalid coding region. " +
+                            "cdsStart must be greater than or equal to " +
+                            "the starting reference position. cdsStart: " + 
+                            cdsStart + ", refStart: " + start);
                 }
                 if (cdsEnd > end) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException("Attempted to build an " +
+                            "Annotation with an invalid coding region. " +
+                            "cdsStart must be less than or equal to " +
+                            "the ending reference position. cdsStart: " + 
+                            cdsStart + ", refEnd: " + end);
                 }
             } else {
                 cdsStart = start;

@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public final class FastaParser extends SequenceParser<Sequence> {
+public final class FastaParser extends SequenceParser<FastaSequence> {
 
     private static final int NUM_FASTA_LINES = 2;
     private static final Logger logger = LogManager.getLogger(FastaParser.class);
@@ -30,7 +30,7 @@ public final class FastaParser extends SequenceParser<Sequence> {
             e.printStackTrace();
         }
         if (s[1] != null) {
-            next = new Sequence(s[0].substring(1), s[1]);
+            next = new FastaSequence(s[0].substring(1), s[1]);
         } else {
             next = null;
             logger.warn("FASTA file " + p.toString() + " has an incomplete final record.");

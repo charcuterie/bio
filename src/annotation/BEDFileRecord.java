@@ -261,32 +261,87 @@ public final class BEDFileRecord extends Gene implements AnnotationFileRecord {
         return hashCode;
     }
     
+    /**
+     * A builder class for constructing {@link BEDFileRecord}s.
+     * <p>
+     * An object of this class can be loaded with <code>Block</code>s, and will
+     * construct the corresponding <code>BEDFileRecord</code> when its
+     * <code>build()</code> method is invoked. Any disagreement (for example,
+     * conflicting reference names among the blocks, or a coding region outside
+     * the bounds of the annotation) will result in an exception being thrown.
+     * <p>
+     * Many fields in a BED file are optional. If these fields are not
+     * explicitly provided to this builder, the following will be used as
+     * defaults:
+     * <ul>
+     * <li>score: <code>0</code>
+     * <li>name: <code>""</code>
+     * <li>color: <code>Color.BLACK</code>
+     * <li>coding region: the <code>BEDFileRecord</code> will have no coding
+     * region, and when output as a formatted <code>String</code>, the
+     * thickStart and thickEnd fields will both default to the starting
+     * reference coordinate
+     * </ul> 
+     */
     public static class BEDBuilder extends GeneBuilder {
         
         private double score;
         private Color color;
         
+        /**
+         * Constructs an empty builder.
+         * <p>
+         * The score is initialized to <code>0</code> and the color is
+         * initialized to <code>Color.BLACK</code>.
+         */
         public BEDBuilder() {
             super();
             score = DEFAULT_SCORE;
             color = DEFAULT_COLOR;
         }
         
+        /**
+         * Adds a score to this builder.
+         * @param score - the score to add
+         * @return this builder form method-chaining
+         */
         public BEDBuilder addScore(double score) {
             this.score = score;
             return this;
         }
         
+        /**
+         * Adds a color to this builder.
+         * @param color - the color to add
+         * @return this builder for method-chaining
+         */
         public BEDBuilder addColor(Color color) {
             this.color = color;
             return this;
         }
         
+        /**
+         * Adds a color, specified by its RGB values, to this builder.
+         * @param r - the red value, between 0 and 255 inclusive
+         * @param g - the green value, between 0 and 255 inclusive
+         * @param b - the blue value, between 0 and 255 inclusive
+         * @return this builder for method-chaining
+         * @throws IllegalArgumentException if <code>r</code>, <code>g</code>
+         * or <code>b</code> are outside the range 0 to 255 inclusive
+         */
         public BEDBuilder addColor(int r, int g, int b) {
             color = new Color(r, g, b);
             return this;
         }
         
+        /**
+         * Adds a color, specified by its combined RGB value, to this builder.
+         * <p>
+         * The value <code>rgb</code> should have its red value in bits 16-23,
+         * its green value in bits 8-15, and its blue value in bits 0-7.
+         * @param rgb - the combined RGB value
+         * @return this builder for method-chaining
+         */
         public BEDBuilder addColor(int rgb) {
             this.color = new Color(rgb);
             return this;
@@ -335,11 +390,14 @@ public final class BEDFileRecord extends Gene implements AnnotationFileRecord {
                     strand = currBlock.getStrand();
                     start = currBlock.getStart();
                 } else if (prevBlock.getEnd() >= currBlock.getStart()) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException("Attempted to build an " +
+                            "Annotation with overlapping blocks.");
                 } else if (!currBlock.getStrand().equals(strand)) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException("Attempted to build an " +
+                            "Annotation with blocks of different strandednesses.");
                 } else if (!currBlock.getReferenceName().equals(ref)) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException("Attempted to build an " +
+                            "Annotation with blocks from different references.");
                 }
                 end = currBlock.getEnd();
                 prevBlock = currBlock;
@@ -352,13 +410,25 @@ public final class BEDFileRecord extends Gene implements AnnotationFileRecord {
             
             if (newCds) {
                 if (cdsStart >= cdsEnd) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException("Attempted to build an " +
+                            "Annotation with an invalid coding region. " +
+                            "cdsStart must be greater than or equal to " +
+                            "cdsEnd. cdsStart: " + cdsStart + ", cdsEnd: " +
+                            cdsEnd);
                 }
                 if (cdsStart < start) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException("Attempted to build an " +
+                            "Annotation with an invalid coding region. " +
+                            "cdsStart must be greater than or equal to " +
+                            "the starting reference position. cdsStart: " + 
+                            cdsStart + ", refStart: " + start);
                 }
                 if (cdsEnd > end) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException("Attempted to build an " +
+                            "Annotation with an invalid coding region. " +
+                            "cdsStart must be less than or equal to " +
+                            "the ending reference position. cdsStart: " + 
+                            cdsStart + ", refEnd: " + end);
                 }
             } else {
                 cdsStart = start;

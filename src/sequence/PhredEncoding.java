@@ -1,5 +1,7 @@
 package sequence;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * An enumeration of Phred quality-score encodings.
  */
@@ -25,5 +27,22 @@ public enum PhredEncoding {
      */
     public final int offset() {
         return this.offset;
+    }
+    
+    public final String phredToString(byte[] bs) {
+        char[] cs = new char[bs.length];
+        for (int i = 0; i < bs.length; i++) {
+            cs[i] = (char) (bs[i] + offset);
+        }
+        return String.valueOf(cs);
+    }
+    
+    public final byte[] stringToPhred(String s) {
+        char[] cs = s.toCharArray();
+        byte[] bs = new byte[cs.length];
+        for (int i = 0; i < cs.length; i++) {
+            bs[i] = (byte) (cs[i] - offset);
+        }
+        return bs;
     }
 }

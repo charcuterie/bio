@@ -37,18 +37,22 @@ public abstract class AnnotationImpl implements Annotation {
         this.strand = strand;
     }
     
+    @Override
     public String getReferenceName() {
         return ref;
     }
     
+    @Override
     public Strand getStrand() {
         return strand;
     }
     
+    @Override
     public int getStart() {
         return start;
     }
     
+    @Override
     public int getEnd() {
         return end;
     }

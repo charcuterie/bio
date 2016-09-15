@@ -1,9 +1,13 @@
 package sequence;
 
-public final class FastqSequence extends Sequence {
+public final class FastqSequence extends FastaSequence {
 
-    private final PhredEncoding pe;
-    private final String quality;
+    private final byte[] quality;
+    
+    public FastqSequence(String name, String seq, byte[] quality) {
+        super(name, seq);
+        this.quality = quality.clone();
+    }
     
     public FastqSequence(String name, String seq, String quality,
             PhredEncoding pe) {
@@ -28,8 +32,7 @@ public final class FastqSequence extends Sequence {
                     quality + " do not agree.");
         }
         
-        this.quality = quality;
-        this.pe = pe;
+        this.quality = new byte[quality.length()];
     }
     
     public FastqSequence(String name, String seq, String quality) {
