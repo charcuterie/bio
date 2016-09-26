@@ -1,4 +1,4 @@
-package sequence;
+package io;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,17 +16,16 @@ import org.apache.logging.log4j.Logger;
 
 import utils.CloseableIterator;
 
-public abstract class SequenceParser<T extends Sequence> implements CloseableIterator<T> {
+public abstract class FileParser<T> implements CloseableIterator<T> {
 
     protected final Path p;
     protected final BufferedReader br;
     protected T next;
     
-    public SequenceParser(Path p) throws IOException {
+    public FileParser(Path p) throws IOException {
         if (p == null) {
             throw new IllegalArgumentException("INSTANTIATION FAIL: " +
-                    "SequenceParser constructed with null path.");
-            
+                    "FileParser constructed with null path.");
         }
         
         this.p = p;

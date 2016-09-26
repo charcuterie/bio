@@ -25,7 +25,7 @@ import org.junit.rules.ExpectedException;
 import datastructures.Interval;
 import datastructures.IntervalSetTree;
 
-public class IntervalSetTreeTest {
+public class TestIntervalSetTree {
 
     private int intervalIdCap = 5;  // Intervals have IDs, [0..4]
     

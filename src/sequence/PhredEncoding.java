@@ -1,7 +1,5 @@
 package sequence;
 
-import java.nio.charset.StandardCharsets;
-
 /**
  * An enumeration of Phred quality-score encodings.
  */

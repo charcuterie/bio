@@ -49,36 +49,7 @@ public class FastaSequence implements Sequence, AnnotationFileRecord {
     }
     
     public FastaSequence reverseComplement(String name) {
-        return new FastaSequence(name, reverse(complement(sequence)));
-    }
-    
-    protected String reverse(String s) {
-        return (new StringBuilder(s).reverse().toString());
-    }
-    
-    protected String complement(String s) {
-        char[] cs = s.toCharArray();
-        char[] rtrn = new char[cs.length];
-        for (int i = 0; i < cs.length; i++) {
-            rtrn[i] = complement(cs[i]);
-        }
-        return String.valueOf(rtrn);
-    }
-    
-    protected char complement(char c) {
-        switch (c) {
-        case 'A': return 'T';
-        case 'C': return 'G';
-        case 'G': return 'C';
-        case 'T': return 'A';
-        case 'N': return 'N';
-        case 'a': return 't';
-        case 'c': return 'g';
-        case 'g': return 't';
-        case 't': return 'a';
-        case 'n': return 'n';
-        default: throw new IllegalArgumentException("Unsupported base: " + c);
-        }
+        return new FastaSequence(name, Sequences.reverseComplement(sequence));
     }
     
     public FastaSequence subsequence(int start, int end) {

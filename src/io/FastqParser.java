@@ -1,4 +1,4 @@
-package sequence;
+package io;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -6,7 +6,10 @@ import java.nio.file.Path;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public final class FastqParser extends SequenceParser<FastqSequence> {
+import sequence.FastqSequence;
+import sequence.PhredEncoding;
+
+public final class FastqParser extends FileParser<FastqSequence> {
 
     private final PhredEncoding pe;
     private final static int NUM_FASTQ_LINES = 4;
@@ -50,5 +53,4 @@ public final class FastqParser extends SequenceParser<FastqSequence> {
     protected Logger getLogger() {
         return logger;
     }
-    
 }

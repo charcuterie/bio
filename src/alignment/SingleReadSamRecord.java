@@ -12,7 +12,7 @@ import annotation.Strand;
 import htsjdk.samtools.SAMRecord;
 import sequence.FastqSequence;
 
-public class SAMFileRecord implements Alignment {
+public class SingleReadSamRecord implements Alignment {
 
     private final FastqSequence fastq;
     private final Annotation annot;
@@ -20,20 +20,35 @@ public class SAMFileRecord implements Alignment {
     private final String cigar;
     private final String mdTag;
     
-    private SAMFileRecord(SAMRecord sam) {
-        annot = (new BlockedBuilder())
-                .addBlock(new Block(sam.getReferenceName(),
-                                    sam.getStart(),
-                                    sam.getEnd(),
-                                    sam.getReadNegativeStrandFlag()
-                                            ? Strand.NEGATIVE
-                                            : Strand.POSITIVE))
-                .build();
+    private SingleReadSamRecord(SAMRecord sam) {
+        annot = new Block(sam.getReferenceName(),
+                          sam.getStart(),
+                          sam.getEnd(),
+                          sam.getReadNegativeStrandFlag()
+                              ? Strand.NEGATIVE
+                              : Strand.POSITIVE);
+        
         fastq = new FastqSequence(sam.getReadName(), sam.getReadString(), 
                                   sam.getBaseQualities());
         cigar = sam.getCigarString();
         mdTag = (String) sam.getAttribute("MD");
         flags = ReadFlag.parseInt((sam.getFlags()));
+    }
+    
+    public boolean isPaired() {
+        return flags.contains(ReadFlag.READ_PAIRED);
+    }
+    
+    public boolean isMappedInProperPair() {
+        return flags.contains(ReadFlag.READ_MAPPED_IN_PROPER_PAIR);
+    }
+    
+    public boolean isMapped() {
+        return !flags.contains(ReadFlag.READ_UNMAPPED);
+    }
+    
+    public boolean hasMappedMate() {
+        return !flags.contains(ReadFlag.MATE_UNMAPPED);
     }
 
     @Override
@@ -72,7 +87,7 @@ public class SAMFileRecord implements Alignment {
     }
 
     @Override
-    public Annotation reverseComplement() {
+    public SingleReadSamRecord reverseComplement() {
         // TODO Auto-generated method stub
         return null;
     }
@@ -89,32 +104,27 @@ public class SAMFileRecord implements Alignment {
 
     @Override
     public boolean overlaps(Annotation other) {
-        // TODO Auto-generated method stub
-        return false;
+        return annot.overlaps(other);
     }
 
     @Override
     public Optional<Annotation> minus(Annotation other) {
-        // TODO Auto-generated method stub
-        return null;
+        return annot.minus(other);
     }
 
     @Override
     public Annotation union(Annotation other) {
-        // TODO Auto-generated method stub
-        return null;
+        return annot.union(other);
     }
 
     @Override
     public Optional<Annotation> intersection(Annotation other) {
-        // TODO Auto-generated method stub
-        return null;
+        return annot.intersection(other);
     }
 
     @Override
     public Optional<Annotation> xor(Annotation other) {
-        // TODO Auto-generated method stub
-        return null;
+        return annot.xor(other);
     }
 
     @Override

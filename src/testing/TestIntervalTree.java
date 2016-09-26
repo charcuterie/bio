@@ -23,7 +23,7 @@ import org.junit.rules.ExpectedException;
 import datastructures.Interval;
 import datastructures.IntervalTree;
 
-public class IntervalTreeTest {
+public class TestIntervalTree {
 
     private IntervalTree<Impl> emptyTree;                 // an empty tree
     
